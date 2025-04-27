@@ -10,23 +10,18 @@ import SwiftData
 
 @main
 struct NoteifyApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+    
+    @Environment(\.notes) var notes
+    @Query var items: [Notepad]
+        
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationSplitView {
+                HomeView()
+            } detail: {
+                Text("Take your notes here")
+            }
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(SharedModelContainer.instance)
     }
 }
