@@ -37,8 +37,13 @@ public struct DrawBoard: View {
                 }
                 
                 configRow(title: "Line Width") {
-                    Slider(value: $currentWidth, in: 0.1...10)
-                        .frame(width: 200)
+                    HStack {
+                        Slider(value: $currentWidth, in: 0.1...10)
+                            .frame(width: 200)
+                        
+                        Text(String(format: "%.2f", currentWidth))
+                            .font(.body)
+                    }
                 }
                 
                 // More stuff when i want it man
@@ -63,18 +68,20 @@ public struct DrawBoard: View {
     
     func renderer(_ context: inout GraphicsContext, _ size: CGSize) {
         for line in lines {
-            context.stroke(line.path,
+            context.stroke(line.smoothPath,
                            with: .color(line.color),
-                           lineWidth: line.lineWidth)
+                           style: .init(lineWidth: line.lineWidth,
+                                        lineCap: .round,
+                                        lineJoin: .round))
         }
     }
     
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: .zero,
                     coordinateSpace: .local)
-        .onChanged { value in 
+        .onChanged { value in
             guard let index = lines.indices.last,
-                    value.translation.width + value.translation.height != .zero else {
+                  value.translation.width + value.translation.height != .zero else {
                 // This is a new line
                 lines.append(.init(color: currentColor, lineWidth: currentWidth, points: [value.location]))
                 return
@@ -89,7 +96,7 @@ public struct DrawBoard: View {
             colorPicker
             
             moreButton
-
+            
             Spacer()
             
             undoButton
