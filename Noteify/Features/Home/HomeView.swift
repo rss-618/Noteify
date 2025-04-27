@@ -13,29 +13,26 @@ struct HomeView: View {
     @Environment(\.modelContext) var modelContext
     @Query var items: [Notepad]
     
-    @State var currentNote: Notepad = .init()
-    @State var isHistoryOpen: Bool = false
-    
+    @State private var viewModel = ViewModel()
+
     var body: some View {
-        VStack {
+        VStack(spacing: 8) {
             historyButton
-            DrawBoard(lines: $currentNote.lines)
+            DrawBoard(lines: $viewModel.currentNote.lines)
+                .padding(16)
         }
         .navigationTitle("Notepad")
-        .sheet(isPresented: $isHistoryOpen) {
-            HistorySheetView(currentNote: $currentNote)
-                    .maxWidth()
-                    .presentationDetents([.medium, .large])
+        .sheet(isPresented: $viewModel.isHistoryOpen) {
+            HistorySheetView(currentNote: $viewModel.currentNote)
         }
         .task {
             loadCurrentNote()
         }
-
     }
     
     var historyButton: some View {
         Button {
-            isHistoryOpen = true
+            viewModel.isHistoryOpen = true
         } label: {
             Text("history")
         }
@@ -43,11 +40,11 @@ struct HomeView: View {
     
     private func loadCurrentNote() {
         if let mostRecent = items.sorted(by: { $0.timestamp > $1.timestamp }).first {
-            currentNote = mostRecent
+            viewModel.currentNote = mostRecent
         } else {
             let newItem = Notepad(timestamp: Date())
             modelContext.insert(newItem)
-            currentNote = newItem
+            viewModel.currentNote = newItem
         }
     }
 

@@ -13,12 +13,12 @@ extension View {
         return self.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    func maxWidth() -> some View {
-        return self.frame(maxWidth: .infinity)
+    func maxWidth(alignment: Alignment = .center) -> some View {
+        return self.frame(maxWidth: .infinity, alignment: alignment)
     }
     
-    func maxHeight() -> some View {
-        return self.frame(maxHeight: .infinity)
+    func maxHeight(alignment: Alignment = .center) -> some View {
+        return self.frame(maxHeight: .infinity, alignment: alignment)
     }
     
 }

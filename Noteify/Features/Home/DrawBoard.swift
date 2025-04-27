@@ -6,13 +6,14 @@ public struct DrawBoard: View {
     @Binding var lines: [Line]
     @State var currentColor: Color = .black
     @State var currentWidth: CGFloat = 1.0
+    @State var showConfigSheet: Bool = false
     
     public init(lines: Binding<[Line]>) {
         self._lines = lines
     }
     
     public var body: some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 2) {
             actionRow
             
             Canvas(opaque: false,
@@ -20,8 +21,44 @@ public struct DrawBoard: View {
                    rendersAsynchronously: true,
                    renderer: self.renderer)
             .maxFrame()
+            .background {
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(.white)
+            }
             .gesture(dragGesture)
         }
+        .sheet(isPresented: $showConfigSheet) {
+            VStack(spacing: 10) {
+                Text("Configuration")
+                    .font(.title2)
+                
+                configRow(title: "Color Picker") {
+                    colorPicker
+                }
+                
+                configRow(title: "Line Width") {
+                    Slider(value: $currentWidth, in: 0.1...10)
+                        .frame(width: 200)
+                }
+                
+                // More stuff when i want it man
+                Spacer()
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+            .padding(16)
+        }
+    }
+    
+    func configRow(title: String, content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.title3)
+            
+            content()
+                .maxWidth(alignment: .leading)
+        }
+        .maxWidth()
     }
     
     func renderer(_ context: inout GraphicsContext, _ size: CGSize) {
@@ -50,12 +87,25 @@ public struct DrawBoard: View {
     var actionRow: some View {
         HStack {
             colorPicker
+            
+            moreButton
 
             Spacer()
             
             undoButton
         }
         .background(RoundedRectangle(cornerRadius: 10.0).fill(Color.gray.opacity(0.7)))
+    }
+    
+    var moreButton: some View {
+        Button {
+            showConfigSheet = true
+        } label: {
+            Image(systemName: Keys.SystemIcon.ELLIPSIS_CIRCLE)
+                .resizable()
+                .frame(width: 30, height: 30)
+                .padding(7)
+        }
     }
     
     var undoButton: some View {
