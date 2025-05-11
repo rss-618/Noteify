@@ -15,7 +15,7 @@ struct HomeView: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack(alignment: .bottom) {
-                Text(viewModel.currentNote.title)
+                titleButton
                 Spacer()
                 historyButton
             }
@@ -32,7 +32,24 @@ struct HomeView: View {
                              selectCompletion: {
                 viewModel.selectNotepad($0)
                 viewModel.dismissHistory()
+            },
+                             deleteCompletion: {
+                viewModel.deleteNotepads($0)
             })
+        }
+        .sheet(isPresented: $viewModel.isEditingTitle) {
+            NotepadDetails(notepad: $viewModel.currentNote)
+        }
+    }
+    
+    var titleButton: some View {
+        Button {
+            viewModel.editTitle()
+        } label: {
+            Text(viewModel.currentNote.title)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .kerning(0.7)
         }
     }
     

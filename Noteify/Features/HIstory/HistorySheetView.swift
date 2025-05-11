@@ -15,6 +15,7 @@ struct HistorySheetView: View {
     let items: [Notepad]
     let addCompletion: () -> Void
     let selectCompletion: (Notepad) -> Void
+    let deleteCompletion: (IndexSet) -> Void
     
     var body: some View {
         VStack(spacing: 8) {
@@ -25,16 +26,15 @@ struct HistorySheetView: View {
                 addNotepadButton
             }
             
-            ScrollView {
-                LazyVStack(spacing: 5) {
-                    ForEach(items) { item in
-                        historyRow(item)
-                    }
-                    
-                    Spacer()
+            List {
+                ForEach(items) { item in
+                    historyRow(item)
                 }
-                .maxFrame()
+                .onDelete {
+                    deleteCompletion($0)
+                }
             }
+            .maxFrame()
         }
         .padding(16)
         .maxFrame()
@@ -65,10 +65,6 @@ struct HistorySheetView: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 8)
                 .maxWidth(alignment: .leading)
-                .background {
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(.gray)
-                }
         }
     }
 }

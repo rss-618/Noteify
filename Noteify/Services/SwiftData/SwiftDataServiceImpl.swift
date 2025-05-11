@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 
 class SwiftDataServiceImpl: SwiftDataService {
+    
     private let modelContainer: ModelContainer
     private let modelContext: ModelContext
     
@@ -36,8 +37,17 @@ class SwiftDataServiceImpl: SwiftDataService {
         }
     }
     
-    func addNotepad(_ expense: Notepad) {
-        modelContext.insert(expense)
+    func addNotepad(_ notepad: Notepad) {
+        modelContext.insert(notepad)
+        saveContext()
+    }
+    
+    func removeNotepad(_ notepad: Notepad) {
+        modelContext.delete(notepad)
+        saveContext()
+    }
+    
+    private func saveContext() {
         do {
             try modelContext.save()
         } catch {

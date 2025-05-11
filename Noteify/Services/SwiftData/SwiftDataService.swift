@@ -10,7 +10,8 @@ import SwiftData
 
 protocol SwiftDataService {
     func fetchNotepads(predicate: Predicate<Notepad>?, sortBy: [SortDescriptor<Notepad>]) -> [Notepad]
-    func addNotepad(_ expense: Notepad)
+    func addNotepad(_ notepad: Notepad)
+    func removeNotepad(_ notepad: Notepad)
 }
 
 extension SwiftDataService {
