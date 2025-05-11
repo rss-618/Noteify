@@ -10,12 +10,11 @@ import SwiftData
 
 struct HistorySheetView: View {
     
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @Query private var items: [Notepad]
-    
-    @Binding var currentNote: Notepad
+    let items: [Notepad]
+    let addCompletion: () -> Void
+    let selectCompletion: (Notepad) -> Void
     
     var body: some View {
         VStack(spacing: 8) {
@@ -28,9 +27,7 @@ struct HistorySheetView: View {
             
             ScrollView {
                 LazyVStack(spacing: 5) {
-                    // Sorting these items on the view level is gross but idk any other way with query
-                    // will investigate
-                    ForEach(items.sorted { $0.timestamp > $1.timestamp }) { item in
+                    ForEach(items) { item in
                         historyRow(item)
                     }
                     
@@ -50,7 +47,9 @@ struct HistorySheetView: View {
     }
     
     var addNotepadButton: some View {
-        Button(action: addItem) {
+        Button {
+            addCompletion()
+        } label: {
             Image(systemName: Keys.SystemIcon.PLUS)
                 .frame(width: 30, height: 30)
                 .padding(7)
@@ -59,9 +58,9 @@ struct HistorySheetView: View {
     
     func historyRow(_ item: Notepad) -> some View {
         Button {
-            itemSelected(item)
+            selectCompletion(item)
         } label: {
-            Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+            Text(item.title)
                 .font(.body)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 8)
@@ -70,28 +69,6 @@ struct HistorySheetView: View {
                     RoundedRectangle(cornerRadius: 5)
                         .fill(.gray)
                 }
-        }
-    }
-    
-    private func itemSelected(_ notepad: Notepad) {
-        currentNote = notepad
-        dismiss()
-    }
-    
-    private func addItem() {
-        withAnimation {
-            let newItem = Notepad(timestamp: Date())
-            modelContext.insert(newItem)
-            itemSelected(newItem)
-        }
-    }
-
-    // TODO: Eventually Re-add this in some type of manner
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
         }
     }
 }

@@ -10,9 +10,6 @@ import SwiftData
 
 @main
 struct NoteifyApp: App {
-    
-    @Environment(\.notes) var notes
-    @Query var items: [Notepad]
         
     var body: some Scene {
         WindowGroup {
@@ -22,6 +19,5 @@ struct NoteifyApp: App {
                 Text("Take your notes here")
             }
         }
-        .modelContainer(SharedModelContainer.instance)
     }
 }

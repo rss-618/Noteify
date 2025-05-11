@@ -11,8 +11,10 @@ import SwiftData
 @Model
 final class Notepad {
     var id: UUID
+    var title: String
     var lines: [Line]
-    var timestamp: Date
+    var createdTimestamp: Date
+    var lastModifiedTimestamp: Date
     
     // What do i need?
     // something for the canvas to redraw the lines on the notepad
@@ -31,9 +33,18 @@ final class Notepad {
     
     // Keep this app simple only complexities should be with draw options, auto parsing of draw pad to text, and custom fonts & colors within text pad.
     // This app needs to be a single page app.
-    init(id: UUID = UUID(), timestamp: Date = Date(), lines: [Line] = .init()) {
+    init(
+        id: UUID = .init(),
+        title: String? = nil,
+        lines: [Line] = .init(),
+        createdTimestamp: Date = .init(),
+        lastModifiedTimestamp: Date = .init(),
+        
+    ) {
         self.id = id
-        self.timestamp = timestamp
+        self.title = title ?? createdTimestamp.ISO8601Format()
         self.lines = lines
+        self.createdTimestamp = createdTimestamp
+        self.lastModifiedTimestamp = lastModifiedTimestamp
     }
 }
