@@ -67,23 +67,22 @@ extension HomeView {
         // Currently we wont allow a non-empty list, this should be subject to change
         func deleteNotepads(_ indexSet: IndexSet) {
             let notepadsToDelete: [Notepad] = indexSet.compactMap { notePads[$0] }
-            let selectDifferentNotepad = notepadsToDelete.contains(currentNote)
-            let hasFreeNotepads = notepadsToDelete.count < notePads.count
             // Ensure we keep a notepad selected
-            if selectDifferentNotepad {
-                if hasFreeNotepads {
-                    for notePad in notePads where !notepadsToDelete.contains(notePad) {
-                        currentNote = notePad
-                    }
-                } else {
-                    newNotepad()
-                }
+            let viableCurrentNotepads: [Notepad] = notePads.filter { !notepadsToDelete.contains($0) }
+            
+            if let newCurrentNotepad = viableCurrentNotepads.first,
+               !viableCurrentNotepads.contains(currentNote) {
+                currentNote = newCurrentNotepad
+            } else if viableCurrentNotepads.isEmpty {
+                newNotepad()
             }
+            
             // Remove notepads selected for deletion
             for notePad in notepadsToDelete {
                 swiftDataService.removeNotepad(notePad)
                 fetchNotepads()
             }
         }
+        
     }
 }
