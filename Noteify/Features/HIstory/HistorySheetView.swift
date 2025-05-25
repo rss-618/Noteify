@@ -10,12 +10,8 @@ import SwiftData
 
 struct HistorySheetView: View {
     
+    @Environment(AppViewModel.self) var appViewModel
     @Environment(\.dismiss) private var dismiss
-    
-    let items: [Notepad]
-    let addCompletion: () -> Void
-    let selectCompletion: (Notepad) -> Void
-    let deleteCompletion: (IndexSet) -> Void
     
     var body: some View {
         VStack(spacing: 8) {
@@ -27,11 +23,11 @@ struct HistorySheetView: View {
             }
             
             List {
-                ForEach(items) { item in
+                ForEach(appViewModel.notePads) { item in
                     historyRow(item)
                 }
                 .onDelete {
-                    deleteCompletion($0)
+                    appViewModel.deleteNotepads($0)
                 }
             }
             .maxFrame()
@@ -48,7 +44,7 @@ struct HistorySheetView: View {
     
     var addNotepadButton: some View {
         Button {
-            addCompletion()
+            appViewModel.newNotepad()
         } label: {
             Image(systemName: Keys.SystemIcon.PLUS)
                 .frame(width: 30, height: 30)
@@ -58,7 +54,7 @@ struct HistorySheetView: View {
     
     func historyRow(_ item: Notepad) -> some View {
         Button {
-            selectCompletion(item)
+            appViewModel.selectNotepad(item)
         } label: {
             Text(item.title)
                 .font(.body)

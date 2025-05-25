@@ -3,14 +3,8 @@ import SwiftData
 
 public struct DrawBoard: View {
     
-    @Binding var lines: [Line]
-    @State var currentColor: Color = .black
-    @State var currentWidth: CGFloat = 1.0
-    @State var showConfigSheet: Bool = false
-    
-    public init(lines: Binding<[Line]>) {
-        self._lines = lines
-    }
+    @Environment(AppViewModel.self) var appViewModel
+    @State var viewModel: ViewModel = .init()
     
     public var body: some View {
         VStack(spacing: 2) {
@@ -27,7 +21,7 @@ public struct DrawBoard: View {
             }
             .gesture(dragGesture)
         }
-        .sheet(isPresented: $showConfigSheet) {
+        .sheet(isPresented: $viewModel.isConfigSheetShowing) {
             VStack(spacing: 10) {
                 Text("Configuration")
                     .font(.title2)
@@ -38,10 +32,10 @@ public struct DrawBoard: View {
                 
                 configRow(title: "Line Width") {
                     HStack {
-                        Slider(value: $currentWidth, in: 0.1...10)
+                        Slider(value: $viewModel.config.currentWidth, in: 0.1...10)
                             .frame(width: 200)
                         
-                        Text(String(format: "%.2f", currentWidth))
+                        Text(String(format: "%.2f", viewModel.config.currentWidth))
                             .font(.body)
                     }
                 }
@@ -67,7 +61,7 @@ public struct DrawBoard: View {
     }
     
     func renderer(_ context: inout GraphicsContext, _ size: CGSize) {
-        for line in lines {
+        for line in appViewModel.currentNote.lines {
             context.stroke(line.smoothPath,
                            with: .color(line.color),
                            style: .init(lineWidth: line.lineWidth,
@@ -80,14 +74,7 @@ public struct DrawBoard: View {
         DragGesture(minimumDistance: .zero,
                     coordinateSpace: .local)
         .onChanged { value in
-            guard let index = lines.indices.last,
-                  value.translation.width + value.translation.height != .zero else {
-                // This is a new line
-                lines.append(.init(color: currentColor, lineWidth: currentWidth, points: [value.location]))
-                return
-            }
-            
-            lines[index].points.append(value.location)
+            appViewModel.drawLine(value: value, config: viewModel.config)
         }
     }
     
@@ -106,7 +93,7 @@ public struct DrawBoard: View {
     
     var moreButton: some View {
         Button {
-            showConfigSheet = true
+            viewModel.displayConfigSheet()
         } label: {
             Image(systemName: Keys.SystemIcon.ELLIPSIS_CIRCLE)
                 .resizable()
@@ -117,9 +104,7 @@ public struct DrawBoard: View {
     
     var undoButton: some View {
         Button {
-            if !lines.isEmpty {
-                lines.removeLast()
-            }
+            appViewModel.undoLine()
         } label: {
             Image(systemName: Keys.SystemIcon.ARROW_UTURN_BACKWARD_CIRCLE)
                 .resizable()
@@ -129,17 +114,8 @@ public struct DrawBoard: View {
     }
     
     var colorPicker: some View {
-        ColorPicker("Select a Color", selection: $currentColor, supportsOpacity: true)
+        ColorPicker("Select a Color", selection: $viewModel.config.currentColor, supportsOpacity: true)
             .frame(width: 30, height: 30)
             .padding(7)
-    }
-}
-
-struct DrawPreview: PreviewProvider {
-    static var previews: some View {
-        DrawBoard(lines: .constant([.init(color: .black,
-                                          lineWidth: 1.0,
-                                          points: [.init(x: 10, y: 10),
-                                                   .init(x: 100, y: 100)])]))
     }
 }

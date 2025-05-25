@@ -9,12 +9,13 @@ import SwiftUI
 
 struct NotepadDetails: View {
     
-    @Binding var notepad: Notepad
-    @State var titleText: String
+    @Environment(\.dismiss) var dismiss
+    @Environment(AppViewModel.self) var viewModel
     
-    public init(notepad: Binding<Notepad>) {
-        self._notepad = notepad
-        self.titleText = notepad.wrappedValue.title
+    @State var title: String
+    
+    public init(title: String) {
+        self.title = title
     }
     
     public var body: some View {
@@ -22,14 +23,15 @@ struct NotepadDetails: View {
             HStack {
                 Spacer()
                 Button {
-                    notepad.title = titleText
+                    viewModel.updateNotepad(title: title)
+                    dismiss()
                 } label: {
                     Text("Save")
                 }
             }
             VStack {
                 row("title") {
-                    TextField("Notepad Title", text: $titleText)
+                    TextField("Notepad Title", text: $title)
                         .maxWidth()
                         .textFieldStyle(.roundedBorder)
                 }

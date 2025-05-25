@@ -10,35 +10,26 @@ import SwiftData
 
 struct HomeView: View {
     
-    @State private var viewModel = ViewModel(swiftDataService: .live)
+    @Environment(AppViewModel.self) var appViewModel
+    @State var viewModel: ViewModel = .init()
 
     var body: some View {
+
         VStack(spacing: 8) {
             HStack(alignment: .bottom) {
                 titleButton
                 Spacer()
                 historyButton
             }
-            DrawBoard(lines: $viewModel.currentNote.lines)
+            DrawBoard()
         }
         .padding(16)
         .navigationTitle("Notepad")
         .sheet(isPresented: $viewModel.isHistoryOpen) {
-            HistorySheetView(items: viewModel.notePads,
-                             addCompletion: {
-                viewModel.newNotepad()
-                viewModel.dismissHistory()
-            },
-                             selectCompletion: {
-                viewModel.selectNotepad($0)
-                viewModel.dismissHistory()
-            },
-                             deleteCompletion: {
-                viewModel.deleteNotepads($0)
-            })
+            HistorySheetView()
         }
         .sheet(isPresented: $viewModel.isEditingTitle) {
-            NotepadDetails(notepad: $viewModel.currentNote)
+            NotepadDetails(title: appViewModel.currentNote.title)
         }
     }
     
@@ -46,7 +37,7 @@ struct HomeView: View {
         Button {
             viewModel.editTitle()
         } label: {
-            Text(viewModel.currentNote.title)
+            Text(appViewModel.currentNote.title)
                 .font(.title2)
                 .fontWeight(.semibold)
                 .kerning(0.7)
