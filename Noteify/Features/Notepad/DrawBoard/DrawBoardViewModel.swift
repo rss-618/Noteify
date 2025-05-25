@@ -14,6 +14,7 @@ extension DrawBoard {
         var currentWidth: CGFloat = 1.0
     }
     
+    @Observable
     class ViewModel {
         var config: Config = .init()
         var isConfigSheetShowing: Bool = false

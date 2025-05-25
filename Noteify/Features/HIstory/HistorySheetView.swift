@@ -45,6 +45,7 @@ struct HistorySheetView: View {
     var addNotepadButton: some View {
         Button {
             appViewModel.newNotepad()
+            dismiss()
         } label: {
             Image(systemName: Keys.SystemIcon.PLUS)
                 .frame(width: 30, height: 30)
@@ -55,6 +56,7 @@ struct HistorySheetView: View {
     func historyRow(_ item: Notepad) -> some View {
         Button {
             appViewModel.selectNotepad(item)
+            dismiss()
         } label: {
             Text(item.title)
                 .font(.body)
